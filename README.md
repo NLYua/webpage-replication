@@ -1,261 +1,92 @@
-# projects
+# Webpage Replication + Consistency Evaluation
 
-这是一个基于 [Next.js 16](https://nextjs.org) + [shadcn/ui](https://ui.shadcn.com) 的全栈应用项目，由扣子编程 CLI 创建。
+本项目实现了基于 AI 工具的网页复刻与一致性评估，包含三个复刻页面和一个自动评估仪表盘。
 
-## 快速开始
+## 公开仓库
 
-### 启动开发服务器
+- 仓库地址：请补充公开可访问的 GitHub / Gitee 仓库链接。
 
-```bash
-coze dev
-```
 
-启动后，在浏览器中打开 [http://localhost:5000](http://localhost:5000) 查看应用。
+## 核心功能
 
-开发服务器支持热更新，修改代码后页面会自动刷新。
+- `src/app/baidu/page.tsx`：百度首页复刻，支持搜索输入、搜索按钮、结果展示和分页交互。
+- `src/app/wechat-pay-login/page.tsx`：微信支付商户登录复刻，支持用户名、密码、验证码输入、密码显隐和登录交互。
+- `src/app/zhihu-login/page.tsx`：知乎登录复刻，支持手机号/密码登录切换、验证码发送倒计时、密码显隐和登录交互。
+- `src/app/evaluation/page.tsx`：一致性评估仪表盘，集成 `/api/evaluate` 自动评估接口，展示视觉、功能、交互三个维度评分。
+- `src/app/api/evaluate/route.ts`：自动评估 API，优先调用 LLM 评估结果，失败时降级为规则评分。
 
-### 构建生产版本
+## 运行说明
 
-```bash
-coze build
-```
-
-### 启动生产服务器
+要求使用 `pnpm` 作为包管理器。
 
 ```bash
-coze start
-```
-
-## 项目结构
-
-```
-src/
-├── app/                      # Next.js App Router 目录
-│   ├── layout.tsx           # 根布局组件
-│   ├── page.tsx             # 首页
-│   ├── globals.css          # 全局样式（包含 shadcn 主题变量）
-│   └── [route]/             # 其他路由页面
-├── components/              # React 组件目录
-│   └── ui/                  # shadcn/ui 基础组件（优先使用）
-│       ├── button.tsx
-│       ├── card.tsx
-│       └── ...
-├── lib/                     # 工具函数库
-│   └── utils.ts            # cn() 等工具函数
-└── hooks/                   # 自定义 React Hooks（可选）
-
-server/
-├── index.ts                 # 自定义服务器入口
-├── tsconfig.json           # Server TypeScript 配置
-└── dist/                    # 编译输出目录（自动生成）
-```
-
-## 核心开发规范
-
-### 1. 组件开发
-
-**优先使用 shadcn/ui 基础组件**
-
-本项目已预装完整的 shadcn/ui 组件库，位于 `src/components/ui/` 目录。开发时应优先使用这些组件作为基础：
-
-```tsx
-// ✅ 推荐：使用 shadcn 基础组件
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-
-export default function MyComponent() {
-  return (
-    <Card>
-      <CardHeader>标题</CardHeader>
-      <CardContent>
-        <Input placeholder="输入内容" />
-        <Button>提交</Button>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-**可用的 shadcn 组件清单**
-
-- 表单：`button`, `input`, `textarea`, `select`, `checkbox`, `radio-group`, `switch`, `slider`
-- 布局：`card`, `separator`, `tabs`, `accordion`, `collapsible`, `scroll-area`
-- 反馈：`alert`, `alert-dialog`, `dialog`, `toast`, `sonner`, `progress`
-- 导航：`dropdown-menu`, `menubar`, `navigation-menu`, `context-menu`
-- 数据展示：`table`, `avatar`, `badge`, `hover-card`, `tooltip`, `popover`
-- 其他：`calendar`, `command`, `carousel`, `resizable`, `sidebar`
-
-详见 `src/components/ui/` 目录下的具体组件实现。
-
-### 2. 路由开发
-
-Next.js 使用文件系统路由，在 `src/app/` 目录下创建文件夹即可添加路由：
-
-```bash
-# 创建新路由 /about
-src/app/about/page.tsx
-
-# 创建动态路由 /posts/[id]
-src/app/posts/[id]/page.tsx
-
-# 创建路由组（不影响 URL）
-src/app/(marketing)/about/page.tsx
-
-# 创建 API 路由
-src/app/api/users/route.ts
-```
-
-**页面组件示例**
-
-```tsx
-// src/app/about/page.tsx
-import { Button } from '@/components/ui/button';
-
-export const metadata = {
-  title: '关于我们',
-  description: '关于页面描述',
-};
-
-export default function AboutPage() {
-  return (
-    <div>
-      <h1>关于我们</h1>
-      <Button>了解更多</Button>
-    </div>
-  );
-}
-```
-
-**动态路由示例**
-
-```tsx
-// src/app/posts/[id]/page.tsx
-export default async function PostPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-
-  return <div>文章 ID: {id}</div>;
-}
-```
-
-**API 路由示例**
-
-```tsx
-// src/app/api/users/route.ts
-import { NextResponse } from 'next/server';
-
-export async function GET() {
-  return NextResponse.json({ users: [] });
-}
-
-export async function POST(request: Request) {
-  const body = await request.json();
-  return NextResponse.json({ success: true });
-}
-```
-
-### 3. 依赖管理
-
-**必须使用 pnpm 管理依赖**
-
-```bash
-# ✅ 安装依赖
 pnpm install
-
-# ✅ 添加新依赖
-pnpm add package-name
-
-# ✅ 添加开发依赖
-pnpm add -D package-name
-
-# ❌ 禁止使用 npm 或 yarn
-# npm install  # 错误！
-# yarn add     # 错误！
+pnpm dev
 ```
 
-项目已配置 `preinstall` 脚本，使用其他包管理器会报错。
+默认开发服务器地址：`http://localhost:5000`
 
-### 4. 样式开发
+## 目录说明
 
-**使用 Tailwind CSS v4**
-
-本项目使用 Tailwind CSS v4 进行样式开发，并已配置 shadcn 主题变量。
-
-```tsx
-// 使用 Tailwind 类名
-<div className="flex items-center gap-4 p-4 rounded-lg bg-background">
-  <Button className="bg-primary text-primary-foreground">
-    主要按钮
-  </Button>
-</div>
-
-// 使用 cn() 工具函数合并类名
-import { cn } from '@/lib/utils';
-
-<div className={cn(
-  "base-class",
-  condition && "conditional-class",
-  className
-)}>
-  内容
-</div>
+```text
+src/
+├── app/
+│   ├── api/evaluate/route.ts   # 一致性评估 API
+│   ├── baidu/page.tsx          # 百度首页复刻
+│   ├── wechat-pay-login/page.tsx # 微信支付登录复刻
+│   ├── zhihu-login/page.tsx    # 知乎登录复刻
+│   ├── evaluation/page.tsx     # 评估仪表盘
+│   ├── layout.tsx              # 根布局
+│   ├── page.tsx                # 首页
+│   └── globals.css             # 全局样式
+├── components/ui/              # shadcn/ui 组件库
+├── hooks/                      # 自定义 Hook
+└── lib/utils.ts                # 样式类名合并等工具
 ```
 
-**主题变量**
+## 页面路由
 
-主题变量定义在 `src/app/globals.css` 中，支持亮色/暗色模式：
+- `/`：项目首页
+- `/baidu`：百度首页复刻
+- `/wechat-pay-login`：微信支付商户登录复刻
+- `/zhihu-login`：知乎登录复刻
+- `/evaluation`：一致性评估仪表盘
 
-- `--background`, `--foreground`
-- `--primary`, `--primary-foreground`
-- `--secondary`, `--secondary-foreground`
-- `--muted`, `--muted-foreground`
-- `--accent`, `--accent-foreground`
-- `--destructive`, `--destructive-foreground`
-- `--border`, `--input`, `--ring`
+## 评估接口
 
-### 5. 表单开发
+- `POST /api/evaluate`：接收 `{ pageId: string }`，支持 `baidu`、`wechat-pay-login`、`zhihu-login`。
+- `GET /api/evaluate`：返回可用评估页面列表。
 
-推荐使用 `react-hook-form` + `zod` 进行表单开发：
+## 项目验收覆盖
 
-```tsx
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+- 完成 3 个不同类型页面的复刻：
+  - 内容展示型：百度首页
+  - 表单交互型：微信支付商户登录、知乎登录
+- 复刻页面包含核心交互逻辑：搜索、分页、表单输入、验证码刷新、登录切换、倒计时、密码显隐
+- 自动评估部分支持量化指标：视觉、功能、交互三维度
+- 评估结果可在 `/evaluation` 页面直接运行，无需额外人工驱动
 
-const formSchema = z.object({
-  username: z.string().min(2, '用户名至少 2 个字符'),
-  email: z.string().email('请输入有效的邮箱'),
-});
+## AI 工具使用记录
 
-export default function MyForm() {
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: { username: '', email: '' },
-  });
+项目中包含 `AI_PROMPTS.md`，记录了关键 AI 生成与评估提示内容，方便审阅与复现。
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
-  };
+## 依赖管理
 
-  return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <Input {...form.register('username')} />
-      <Input {...form.register('email')} />
-      <Button type="submit">提交</Button>
-    </form>
-  );
-}
+本仓库已配置 `pnpm`。
+
+```bash
+pnpm install
+pnpm dev
 ```
 
-### 6. 数据获取
+## 构建与启动
 
-**服务端组件（推荐）**
+```bash
+pnpm build
+pnpm start
+```
+
+> 如果你使用的是 Windows，请确保启用 bash shell 或 Git Bash，以便运行 `scripts/*.sh` 脚本。
 
 ```tsx
 // src/app/posts/page.tsx

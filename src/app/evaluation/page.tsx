@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 
 /* ---------- 评估数据类型 ---------- */
 interface PageEval {
+  id: 'baidu' | 'wechat-pay-login' | 'zhihu-login';
   name: string;
   href: string;
   score: number;
@@ -21,8 +22,39 @@ interface EvalRow {
   zhihu: number;
 }
 
+interface ApiEvalResult {
+  pageId: string;
+  timestamp: string;
+  result: {
+    visual: {
+      overall: number;
+      dom_structure: number;
+      css_match: number;
+      layout_similarity: number;
+      color_accuracy: number;
+    };
+    functional: {
+      overall: number;
+      feature_coverage: number;
+      feature_correctness: number;
+      data_integrity: number;
+    };
+    interaction: {
+      overall: number;
+      interaction_fidelity: number;
+      feedback_consistency: number;
+      state_management: number;
+    };
+    overall: number;
+    summary: string;
+  };
+}
+
+const PAGE_IDS = ['baidu', 'wechat-pay-login', 'zhihu-login'] as const;
+
 const PAGE_EVALS: PageEval[] = [
   {
+    id: 'baidu',
     name: '百度首页',
     href: '/baidu',
     score: 88,
@@ -41,6 +73,7 @@ const PAGE_EVALS: PageEval[] = [
     ],
   },
   {
+    id: 'wechat-pay-login',
     name: '微信支付登录',
     href: '/wechat-pay-login',
     score: 83,
@@ -59,6 +92,7 @@ const PAGE_EVALS: PageEval[] = [
     ],
   },
   {
+    id: 'zhihu-login',
     name: '知乎登录',
     href: '/zhihu-login',
     score: 72,
@@ -124,18 +158,49 @@ function RingScore({ score, size = 80, strokeWidth = 6, color }: { score: number
 export default function EvaluationPage() {
   const [evaluating, setEvaluating] = useState(false);
   const [evalTime, setEvalTime] = useState('2025-05-29 14:32:00');
+  const [apiResults, setApiResults] = useState<Record<string, ApiEvalResult>>({});
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const overallScore = Math.round(PAGE_EVALS.reduce((sum, p) => sum + p.score, 0) / PAGE_EVALS.length);
   const visualScore = Math.round(PAGE_EVALS.reduce((sum, p) => sum + p.dims[0].value, 0) / PAGE_EVALS.length);
   const funcScore = Math.round(PAGE_EVALS.reduce((sum, p) => sum + p.dims[1].value, 0) / PAGE_EVALS.length);
   const interScore = Math.round(PAGE_EVALS.reduce((sum, p) => sum + p.dims[2].value, 0) / PAGE_EVALS.length);
+  const hasApiResults = Object.keys(apiResults).length > 0;
 
-  const handleRunEval = useCallback(() => {
+  const getPageOverall = (page: PageEval) => apiResults[page.id]?.result.overall ?? page.score;
+  const getPageSummary = (page: PageEval) => apiResults[page.id]?.result.summary ?? `${page.name} 的静态评估结论。`;
+
+  const handleRunEval = useCallback(async () => {
     setEvaluating(true);
-    setTimeout(() => {
-      setEvaluating(false);
+    setApiError(null);
+    try {
+      const results = await Promise.all(
+        PAGE_IDS.map(async (pageId) => {
+          const response = await fetch('/api/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageId }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`评估接口返回错误：${response.status}`);
+          }
+
+          const data = (await response.json()) as ApiEvalResult | { error: string };
+          if ('error' in data) {
+            throw new Error(data.error);
+          }
+          return data;
+        })
+      );
+
+      setApiResults(Object.fromEntries(results.map((item) => [item.pageId, item])));
       setEvalTime(new Date().toLocaleString('zh-CN', { hour12: false }));
-    }, 3000);
+    } catch (error: unknown) {
+      setApiError(error instanceof Error ? error.message : '评估失败');
+    } finally {
+      setEvaluating(false);
+    }
   }, []);
 
   const weightedTotal = (col: 'baidu' | 'wechat' | 'zhihu') =>
@@ -144,35 +209,43 @@ export default function EvaluationPage() {
   return (
     <main className="max-w-7xl mx-auto p-6">
       {/* 页面标题区 */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">一致性评估报告</h1>
-          <p className="text-sm text-muted-foreground mt-1">对复刻页面进行视觉、功能与交互三个维度的自动化量化评估</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground font-mono">最近评估: {evalTime}</span>
-          <button
-            onClick={handleRunEval}
-            disabled={evaluating}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-50"
-          >
-            {evaluating ? (
-              <>
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity={0.3} />
-                  <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                </svg>
-                评估中...
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="5 3 19 12 5 21 5 3" />
-                </svg>
-                运行评估
-              </>
-            )}
-          </button>
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">一致性评估报告</h1>
+            <p className="text-sm text-muted-foreground mt-1">对复刻页面进行视觉、功能与交互三个维度的自动化量化评估</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              当前评估数据来源：<span className="font-medium text-foreground">{hasApiResults ? '自动评估 API' : '静态演示数据'}</span>
+            </p>
+            {apiError ? (
+              <p className="text-sm text-destructive mt-2">评估接口异常：{apiError}</p>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground font-mono">最近评估: {evalTime}</span>
+            <button
+              onClick={handleRunEval}
+              disabled={evaluating}
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {evaluating ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity={0.3} />
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                  </svg>
+                  评估中...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                  运行评估
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -257,14 +330,14 @@ export default function EvaluationPage() {
         <div className="grid grid-cols-3 gap-5">
           {PAGE_EVALS.map((page) => (
             <a
-              key={page.name}
+              key={page.id}
               href={page.href}
               className="bg-card rounded-lg shadow-card border border-border/15 p-5 hover:border-primary/30 transition-colors block"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-semibold text-foreground">{page.name}</h3>
                 <div className="flex items-center gap-1.5">
-                  <span className={`text-lg font-bold ${getScoreColor(page.score)}`}>{page.score}</span>
+                  <span className={`text-lg font-bold ${getScoreColor(getPageOverall(page))}`}>{getPageOverall(page)}</span>
                   <span className={`text-xs font-medium ${page.statusColor}`}>/ {page.status}</span>
                 </div>
               </div>
@@ -281,6 +354,8 @@ export default function EvaluationPage() {
                   </div>
                 ))}
               </div>
+
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">{getPageSummary(page)}</p>
 
               {/* 关键指标 */}
               <div className="grid grid-cols-2 gap-2">
