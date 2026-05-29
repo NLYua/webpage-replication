@@ -1,5 +1,9 @@
 # 项目上下文
 
+## 项目概述
+
+WebClone - 基于AI工具的网页复刻与一致性评估平台。该项目复刻3个不同类型的网页（百度首页-内容展示型、微信支付商户登录-表单交互型、知乎登录-表单交互型），并通过自动化一致性评估系统量化复刻质量。
+
 ### 版本技术栈
 
 - **Framework**: Next.js 16 (App Router)
@@ -7,59 +11,83 @@
 - **Language**: TypeScript 5
 - **UI 组件**: shadcn/ui (基于 Radix UI)
 - **Styling**: Tailwind CSS 4
+- **LLM SDK**: coze-coding-dev-sdk（用于AI驱动的一致性评估）
 
 ## 目录结构
 
 ```
-├── public/                 # 静态资源
-├── scripts/                # 构建与启动脚本
-│   ├── build.sh            # 构建脚本
-│   ├── dev.sh              # 开发环境启动脚本
-│   ├── prepare.sh          # 预处理脚本
-│   └── start.sh            # 生产环境启动脚本
+├── public/                          # 静态资源
+├── .cozeproj/prototype/web/         # 设计原型HTML文件
+├── scripts/                         # 构建与启动脚本
 ├── src/
-│   ├── app/                # 页面路由与布局
-│   ├── components/ui/      # Shadcn UI 组件库
-│   ├── hooks/              # 自定义 Hooks
-│   ├── lib/                # 工具库
-│   │   └── utils.ts        # 通用工具函数 (cn)
-│   └── server.ts           # 自定义服务端入口
-├── next.config.ts          # Next.js 配置
-├── package.json            # 项目依赖管理
-└── tsconfig.json           # TypeScript 配置
+│   ├── app/
+│   │   ├── page.tsx                 # 首页（项目总览）
+│   │   ├── layout.tsx               # 全局布局（含顶部导航）
+│   │   ├── globals.css              # 全局样式 + Design Token
+│   │   ├── baidu/page.tsx           # 百度首页复刻
+│   │   ├── wechat-pay-login/page.tsx # 微信支付商户登录复刻
+│   │   ├── zhihu-login/page.tsx     # 知乎登录复刻
+│   │   ├── evaluation/page.tsx      # 一致性评估仪表板
+│   │   └── api/evaluate/route.ts    # AI评估API接口
+│   ├── components/ui/               # Shadcn UI 组件库
+│   ├── hooks/                       # 自定义 Hooks
+│   └── lib/utils.ts                 # 通用工具函数
+├── DESIGN.md                        # 设计规范
+└── AGENTS.md                        # 本文件
 ```
 
-- 项目文件（如 app 目录、pages 目录、components 等）默认初始化到 `src/` 目录下。
+## 页面路由
+
+| 路由 | 说明 | 类型 |
+|------|------|------|
+| `/` | 项目总览页 | 服务端组件 |
+| `/baidu` | 百度首页复刻 | 客户端组件 |
+| `/wechat-pay-login` | 微信支付商户登录复刻 | 客户端组件 |
+| `/zhihu-login` | 知乎登录复刻 | 客户端组件 |
+| `/evaluation` | 一致性评估仪表板 | 客户端组件 |
+
+## API 接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/evaluate` | AI驱动的一致性评估，参数: `{ pageId: string }` |
+| GET | `/api/evaluate` | 获取可评估页面列表 |
+
+pageId 可选值: `baidu`, `wechat-pay-login`, `zhihu-login`
 
 ## 包管理规范
 
 **仅允许使用 pnpm** 作为包管理器，**严禁使用 npm 或 yarn**。
-**常用命令**：
-- 安装依赖：`pnpm add <package>`
-- 安装开发依赖：`pnpm add -D <package>`
-- 安装所有依赖：`pnpm install`
-- 移除依赖：`pnpm remove <package>`
 
 ## 开发规范
 
 ### 编码规范
 
-- 默认按 TypeScript `strict` 心智写代码；优先复用当前作用域已声明的变量、函数、类型和导入，禁止引用未声明标识符或拼错变量名。
-- 禁止隐式 `any` 和 `as any`；函数参数、返回值、解构项、事件对象、`catch` 错误在使用前应有明确类型或先完成类型收窄，并清理未使用的变量和导入。
+- 默认按 TypeScript `strict` 心智写代码；禁止隐式 `any` 和 `as any`
+- 函数参数、返回值、解构项、事件对象、`catch` 错误在使用前应有明确类型或先完成类型收窄
+- 清理未使用的变量和导入
+- 客户端交互页面使用 `'use client'` 指令
 
 ### next.config 配置规范
 
-- 配置的路径不要写死绝对路径，必须使用 path.resolve(__dirname, ...)、import.meta.dirname 或 process.cwd() 动态拼接。
+- 配置的路径不要写死绝对路径，必须使用 `path.resolve(__dirname, ...)` 或 `process.cwd()` 动态拼接
 
 ### Hydration 问题防范
 
-1. 严禁在 JSX 渲染逻辑中直接使用 typeof window、Date.now()、Math.random() 等动态数据。**必须使用 'use client' 并配合 useEffect + useState 确保动态内容仅在客户端挂载后渲染**；同时严禁非法 HTML 嵌套（如 <p> 嵌套 <div>）。
-2. **禁止使用 head 标签**，优先使用 metadata，详见文档：https://nextjs.org/docs/app/api-reference/functions/generate-metadata
-   1. 三方 CSS、字体等资源可在 `globals.css` 中顶部通过 `@import` 引入或使用 next/font
-   2. preload, preconnect, dns-prefetch 通过 ReactDOM 的 preload、preconnect、dns-prefetch 方法引入
-   3. json-ld 可阅读 https://nextjs.org/docs/app/guides/json-ld
+1. 严禁在 JSX 渲染逻辑中直接使用 `typeof window`、`Date.now()`、`Math.random()` 等动态数据
+2. 必须使用 `'use client'` 并配合 `useEffect` + `useState` 确保动态内容仅在客户端挂载后渲染
+3. 严禁非法 HTML 嵌套（如 `<p>` 嵌套 `<div>`）
 
-## UI 设计与组件规范 (UI & Styling Standards)
+## UI 设计规范
 
-- 模板默认预装核心组件库 `shadcn/ui`，位于`src/components/ui/`目录下
-- Next.js 项目**必须默认**采用 shadcn/ui 组件、风格和规范，**除非用户指定用其他的组件和规范。**
+- 模板默认预装核心组件库 `shadcn/ui`，位于 `src/components/ui/` 目录下
+- Next.js 项目默认采用 shadcn/ui 组件、风格和规范
+- 复刻页面使用自定义内联SVG图标（不依赖Lucide CDN），确保页面独立可运行
+
+## 评估系统架构
+
+评估系统由两部分组成：
+1. **前端仪表板** (`/evaluation`)：展示可视化评估指标、评分环形图、对比表格
+2. **后端AI评估** (`/api/evaluate`)：调用LLM对原始页面与复刻页面的描述进行对比分析，输出量化评分
+
+评估维度：视觉一致性、功能一致性、交互一致性，每个维度包含3-4个子指标。
