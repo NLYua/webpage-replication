@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #62F6A8;
+      --color-primary-container:    #1A3D2B;
+      --color-on-primary:           #08111F;
+      /* === 背景 / 表面 === */
+      --color-background:                 #08111F;
+      --color-surface-container-lowest:   #0A1525;
+      --color-surface:                    #0E1A2D;
+      --color-surface-container:          #132240;
+      --color-surface-container-high:     #1A2D52;
+      --color-surface-container-highest:  #1D2B44;
+      /* === 文字 === */
+      --color-on-surface:           #E6EDF7;
+      --color-on-surface-variant:   #8EA0B8;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #1D2B44;
+      --color-outline-variant:  #253A5C;
+      /* === 圆角 === */
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.3);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.4);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.5);
+      /* === 字体 === */
+      --font-sans: "Inter", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-14 flex items-center justify-between px-6 border-b border-outline-variant/20">
+    <div class="flex items-center gap-2">
+      <i data-lucide="copy" class="text-primary w-5 h-5"></i>
+      <span class="font-bold text-base text-on-surface">WebClone</span>
+      <span class="text-xs text-on-surface-variant ml-1 font-mono bg-surface-container px-1.5 py-0.5 rounded">v1.0</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a href="home.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">总览</a>
+      <a href="baidu.html" class="nav-link px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md" aria-current="page">百度首页</a>
+      <a href="wechat-pay-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">微信支付登录</a>
+      <a href="zhihu-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">知乎登录</a>
+      <a href="evaluation.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">一致性评估</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <button id="run-eval-btn" class="bg-primary text-on-primary px-3 py-1.5 rounded-md text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>运行评估
+      </button>
+    </div>
+  </header>
+  <!-- @nav:end 导航组件 -->
+
+  <!-- @main-content:start -->
+  <main id="baidu-app" class="min-h-[calc(100vh-3.5rem)] bg-background">
+
+    <!-- ========== 首页视图 ========== -->
+    <div id="home-view" class="flex flex-col items-center" style="padding-top: 12vh;">
+
+      <!-- 百度顶部导航 -->
+      <nav id="baidu-top-nav" class="w-full max-w-[640px] flex items-center justify-end gap-4 mb-6 px-2">
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">新闻</a>
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">hao123</a>
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">地图</a>
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">贴吧</a>
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">视频</a>
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">图片</a>
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">网盘</a>
+        <a href="#" class="text-sm text-on-surface-variant hover:text-primary transition-colors">更多</a>
+      </nav>
+
+      <!-- 百度 Logo -->
+      <div id="baidu-logo" class="mb-8 select-none">
+        <span class="text-6xl font-bold tracking-tight">
+          <span class="text-primary">B</span><span class="text-on-surface">aidu</span>
+        </span>
+      </div>
+
+      <!-- 搜索框区域 -->
+      <div id="search-box-wrapper" class="w-full max-w-[640px] flex items-center gap-2 px-2">
+        <div id="search-box" class="flex-1 flex items-center bg-surface-container border-none rounded-full px-5 py-3 focus-within:ring-2 focus-within:ring-primary/30 transition-shadow">
+          <input
+            id="search-input"
+            type="text"
+            class="flex-1 bg-transparent border-none outline-none text-base text-on-surface placeholder:text-on-surface-variant/50"
+            placeholder="输入搜索内容"
+            autocomplete="off"
+          />
+          <div class="flex items-center gap-3 ml-2">
+            <!-- 语音搜索图标 -->
+            <button id="voice-search-btn" class="text-on-surface-variant hover:text-primary transition-colors" title="语音搜索">
+              <i data-lucide="mic" class="w-5 h-5"></i>
+            </button>
+            <!-- 拍照搜索图标 -->
+            <button id="camera-search-btn" class="text-on-surface-variant hover:text-primary transition-colors" title="拍照搜索">
+              <i data-lucide="camera" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+        <!-- 百度一下按钮 -->
+        <button id="search-btn" class="bg-primary text-on-primary px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all shrink-0">
+          百度一下
+        </button>
+      </div>
+
+      <!-- 搜索热榜 -->
+      <div id="hot-search" class="w-full max-w-[640px] mt-8 px-2">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="flame" class="w-4 h-4 text-error"></i>
+          <span class="text-sm font-semibold text-on-surface">百度热榜</span>
+        </div>
+        <div id="hot-search-list" class="grid grid-cols-2 gap-x-6 gap-y-2.5">
+          <!-- 热搜-条目1 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="2025年高考报名时间">
+            <span class="w-5 h-5 rounded-sm bg-error/20 text-error text-xs font-bold flex items-center justify-center shrink-0">1</span>
+            <span class="truncate group-hover:underline">2025年高考报名时间</span>
+            <span class="text-xs text-error ml-auto shrink-0">热</span>
+          </a>
+          <!-- 热搜-条目2 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="AI大模型最新突破">
+            <span class="w-5 h-5 rounded-sm bg-error/20 text-error text-xs font-bold flex items-center justify-center shrink-0">2</span>
+            <span class="truncate group-hover:underline">AI大模型最新突破</span>
+            <span class="text-xs text-error ml-auto shrink-0">热</span>
+          </a>
+          <!-- 热搜-条目3 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="全国房价走势分析">
+            <span class="w-5 h-5 rounded-sm bg-error/20 text-error text-xs font-bold flex items-center justify-center shrink-0">3</span>
+            <span class="truncate group-hover:underline">全国房价走势分析</span>
+            <span class="text-xs text-error ml-auto shrink-0">热</span>
+          </a>
+          <!-- 热搜-条目4 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="新能源汽车补贴政策">
+            <span class="w-5 h-5 rounded-sm bg-warning/20 text-warning text-xs font-bold flex items-center justify-center shrink-0">4</span>
+            <span class="truncate group-hover:underline">新能源汽车补贴政策</span>
+          </a>
+          <!-- 热搜-条目5 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="热门旅游景点推荐">
+            <span class="w-5 h-5 rounded-sm bg-warning/20 text-warning text-xs font-bold flex items-center justify-center shrink-0">5</span>
+            <span class="truncate group-hover:underline">热门旅游景点推荐</span>
+          </a>
+          <!-- 热搜-条目6 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="Python入门教程">
+            <span class="w-5 h-5 rounded-sm bg-surface-container-high text-on-surface-variant text-xs font-bold flex items-center justify-center shrink-0">6</span>
+            <span class="truncate group-hover:underline">Python入门教程</span>
+          </a>
+          <!-- 热搜-条目7 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="健康饮食搭配方案">
+            <span class="w-5 h-5 rounded-sm bg-surface-container-high text-on-surface-variant text-xs font-bold flex items-center justify-center shrink-0">7</span>
+            <span class="truncate group-hover:underline">健康饮食搭配方案</span>
+          </a>
+          <!-- 热搜-条目8 -->
+          <a href="#" class="hot-item flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors group" data-keyword="电影票房排行榜">
+            <span class="w-5 h-5 rounded-sm bg-surface-container-high text-on-surface-variant text-xs font-bold flex items-center justify-center shrink-0">8</span>
+            <span class="truncate group-hover:underline">电影票房排行榜</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 搜索结果视图 ========== -->
+    <div id="result-view" class="hidden">
+      <!-- 结果页顶部栏 -->
+      <div id="result-top-bar" class="sticky top-14 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20">
+        <div class="max-w-[780px] mx-auto flex items-center gap-4 py-3 px-4">
+          <!-- 返回首页 -->
+          <button id="back-home-btn" class="text-on-surface-variant hover:text-primary transition-colors shrink-0" title="返回首页">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <!-- 搜索框（缩小版） -->
+          <div id="result-search-box" class="flex-1 flex items-center bg-surface-container border-none rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-primary/30 transition-shadow">
+            <input
+              id="result-search-input"
+              type="text"
+              class="flex-1 bg-transparent border-none outline-none text-sm text-on-surface placeholder:text-on-surface-variant/50"
+              placeholder="输入搜索内容"
+              autocomplete="off"
+            />
+            <div class="flex items-center gap-2 ml-2">
+              <button id="result-voice-btn" class="text-on-surface-variant hover:text-primary transition-colors" title="语音搜索">
+                <i data-lucide="mic" class="w-4 h-4"></i>
+              </button>
+              <button id="result-camera-btn" class="text-on-surface-variant hover:text-primary transition-colors" title="拍照搜索">
+                <i data-lucide="camera" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          <!-- 搜索按钮 -->
+          <button id="result-search-btn" class="bg-primary text-on-primary px-5 py-2 rounded-full text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all shrink-0">
+            百度一下
+          </button>
+        </div>
+      </div>
+
+      <!-- 搜索结果内容区 -->
+      <div class="max-w-[780px] mx-auto px-4 py-5">
+        <!-- 搜索统计 -->
+        <p id="result-stats" class="text-xs text-on-surface-variant mb-5">百度为您找到相关结果约 1,280,000 条</p>
+
+        <!-- 搜索结果列表 -->
+        <div id="result-list" class="space-y-6">
+
+          <!-- 搜索结果-条目1 -->
+          <div class="result-item">
+            <a href="#" class="text-lg font-medium text-primary hover:underline leading-snug">人工智能 - 百度百科</a>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed line-clamp-2">人工智能（Artificial Intelligence），英文缩写为AI。它是研究、开发用于模拟、延伸和扩展人的智能的理论、方法、技术及应用系统的一门新的技术科学。人工智能是计算机科学的一个分支…</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <span class="text-xs text-success">baike.baidu.com</span>
+              <span class="text-xs text-on-surface-variant/50">- 2024-12-20</span>
+              <a href="#" class="text-xs text-on-surface-variant hover:text-primary transition-colors">百度快照</a>
+            </div>
+          </div>
+
+          <!-- 搜索结果-条目2 -->
+          <div class="result-item">
+            <a href="#" class="text-lg font-medium text-primary hover:underline leading-snug">什么是人工智能？AI技术的现状与未来发展趋势 - 知乎专栏</a>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed line-clamp-2">本文详细介绍了人工智能的定义、发展历程以及当前主流技术方向，包括机器学习、深度学习、自然语言处理等核心领域。同时分析了AI技术在医疗、金融、教育等行业的应用前景…</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <span class="text-xs text-success">zhuanlan.zhihu.com</span>
+              <span class="text-xs text-on-surface-variant/50">- 2025-01-05</span>
+              <a href="#" class="text-xs text-on-surface-variant hover:text-primary transition-colors">百度快照</a>
+            </div>
+          </div>
+
+          <!-- 搜索结果-条目3 -->
+          <div class="result-item">
+            <a href="#" class="text-lg font-medium text-primary hover:underline leading-snug">2025年人工智能十大趋势预测 - 36氪</a>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed line-clamp-2">随着大模型技术的持续突破，2025年人工智能领域将迎来新的变革。从多模态融合到Agent智能体，从具身智能到AI安全治理，本文梳理了最具影响力的十大技术趋势…</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <span class="text-xs text-success">36kr.com</span>
+              <span class="text-xs text-on-surface-variant/50">- 2025-02-18</span>
+              <a href="#" class="text-xs text-on-surface-variant hover:text-primary transition-colors">百度快照</a>
+            </div>
+          </div>
+
+          <!-- 搜索结果-条目4 -->
+          <div class="result-item">
+            <a href="#" class="text-lg font-medium text-primary hover:underline leading-snug">AI人工智能入门教程 - 菜鸟教程</a>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed line-clamp-2">人工智能入门教程，涵盖机器学习基础、Python编程、TensorFlow框架使用等内容。适合零基础学习者，配有丰富的代码示例和实践项目，从理论到实战全面掌握AI开发技能…</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <span class="text-xs text-success">www.runoob.com</span>
+              <span class="text-xs text-on-surface-variant/50">- 2024-11-10</span>
+              <a href="#" class="text-xs text-on-surface-variant hover:text-primary transition-colors">百度快照</a>
+            </div>
+          </div>
+
+          <!-- 搜索结果-条目5 -->
+          <div class="result-item">
+            <a href="#" class="text-lg font-medium text-primary hover:underline leading-snug">人工智能最新研究成果 - 中国科学院</a>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed line-clamp-2">中国科学院自动化研究所发布最新AI研究成果，在视觉感知、语音识别、知识推理等方向取得重大突破。相关论文已在Nature和Science等顶级期刊发表…</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <span class="text-xs text-success">www.cas.cn</span>
+              <span class="text-xs text-on-surface-variant/50">- 2025-01-22</span>
+              <a href="#" class="text-xs text-on-surface-variant hover:text-primary transition-colors">百度快照</a>
+            </div>
+          </div>
+
+          <!-- 搜索结果-条目6 -->
+          <div class="result-item">
+            <a href="#" class="text-lg font-medium text-primary hover:underline leading-snug">全球AI公司排名2025 - Forbes</a>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed line-clamp-2">Forbes发布2025年度全球最具影响力的AI公司榜单，OpenAI、Google DeepMind、Anthropic等公司名列前茅。中国企业在大模型领域表现亮眼…</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <span class="text-xs text-success">www.forbes.com</span>
+              <span class="text-xs text-on-surface-variant/50">- 2025-03-01</span>
+              <a href="#" class="text-xs text-on-surface-variant hover:text-primary transition-colors">百度快照</a>
+            </div>
+          </div>
+
+          <!-- 搜索结果-条目7 -->
+          <div class="result-item">
+            <a href="#" class="text-lg font-medium text-primary hover:underline leading-snug">人工智能伦理与安全：我们需要关注什么？ - 新华网</a>
+            <p class="text-sm text-on-surface-variant mt-1 leading-relaxed line-clamp-2">随着AI技术的飞速发展，人工智能伦理和安全问题日益受到关注。从算法偏见到数据隐私，从自主武器到深度伪造，本文深入探讨了AI发展中的关键伦理挑战及应对策略…</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <span class="text-xs text-success">www.xinhuanet.com</span>
+              <span class="text-xs text-on-surface-variant/50">- 2025-02-28</span>
+              <a href="#" class="text-xs text-on-surface-variant hover:text-primary transition-colors">百度快照</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 翻页组件 -->
+        <div id="pagination" class="flex items-center justify-center gap-1 mt-10 mb-8">
+          <!-- 上一页 -->
+          <button id="prev-page-btn" class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+            上一页
+          </button>
+          <!-- 页码1 - 当前页 -->
+          <button class="page-btn px-3 py-1.5 text-sm font-semibold bg-primary text-on-primary rounded" data-page="1">1</button>
+          <!-- 页码2 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="2">2</button>
+          <!-- 页码3 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="3">3</button>
+          <!-- 页码4 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="4">4</button>
+          <!-- 页码5 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="5">5</button>
+          <!-- 页码6 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="6">6</button>
+          <!-- 页码7 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="7">7</button>
+          <!-- 页码8 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="8">8</button>
+          <!-- 页码9 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="9">9</button>
+          <!-- 页码10 -->
+          <button class="page-btn px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors" data-page="10">10</button>
+          <!-- 下一页 -->
+          <button id="next-page-btn" class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors">
+            下一页
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <!-- @main-content:end -->
+
+  <script>
+    $(function () {
+      // ===== 视图切换 =====
+      function showHome() {
+        $('#home-view').removeClass('hidden');
+        $('#result-view').addClass('hidden');
+        $('#search-input').val('');
+        $('#search-input').focus();
+      }
+
+      function showResult(keyword) {
+        if (!keyword || !keyword.trim()) return;
+        keyword = keyword.trim();
+        $('#home-view').addClass('hidden');
+        $('#result-view').removeClass('hidden');
+        $('#result-search-input').val(keyword);
+        $('#result-stats').text('百度为您找到相关结果约 ' + (Math.floor(Math.random() * 9000000) + 1000000).toLocaleString() + ' 条');
+        // 重置分页到第1页
+        $('.page-btn').removeClass('bg-primary text-on-primary font-semibold').addClass('text-on-surface-variant');
+        $('.page-btn[data-page="1"]').addClass('bg-primary text-on-primary font-semibold').removeClass('text-on-surface-variant');
+        $('#prev-page-btn').prop('disabled', true);
+        $('#next-page-btn').prop('disabled', false);
+        // 滚动到顶部
+        $(window).scrollTop(0);
+        // 重新渲染图标
+        lucide.createIcons();
+      }
+
+      // ===== 首页搜索 =====
+      $('#search-btn').on('click', function () {
+        var keyword = $('#search-input').val();
+        showResult(keyword);
+      });
+
+      $('#search-input').on('keydown', function (e) {
+        if (e.key === 'Enter') {
+          var keyword = $(this).val();
+          showResult(keyword);
+        }
+      });
+
+      // ===== 结果页搜索 =====
+      $('#result-search-btn').on('click', function () {
+        var keyword = $('#result-search-input').val();
+        showResult(keyword);
+      });
+
+      $('#result-search-input').on('keydown', function (e) {
+        if (e.key === 'Enter') {
+          var keyword = $(this).val();
+          showResult(keyword);
+        }
+      });
+
+      // ===== 返回首页 =====
+      $('#back-home-btn').on('click', function () {
+        showHome();
+      });
+
+      // ===== 热搜点击 =====
+      $('#hot-search-list').on('click', '.hot-item', function (e) {
+        e.preventDefault();
+        var keyword = $(this).data('keyword');
+        $('#search-input').val(keyword);
+        showResult(keyword);
+      });
+
+      // ===== 翻页 =====
+      $('#pagination').on('click', '.page-btn', function () {
+        var page = $(this).data('page');
+        // 更新激活态
+        $('.page-btn').removeClass('bg-primary text-on-primary font-semibold').addClass('text-on-surface-variant');
+        $(this).addClass('bg-primary text-on-primary font-semibold').removeClass('text-on-surface-variant');
+        // 更新上一页/下一页按钮状态
+        $('#prev-page-btn').prop('disabled', page === 1);
+        $('#next-page-btn').prop('disabled', page === 10);
+        // 滚动到顶部
+        $(window).scrollTop(0);
+      });
+
+      $('#prev-page-btn').on('click', function () {
+        var currentPage = $('.page-btn.bg-primary').data('page');
+        if (currentPage > 1) {
+          $('.page-btn[data-page="' + (currentPage - 1) + '"]').trigger('click');
+        }
+      });
+
+      $('#next-page-btn').on('click', function () {
+        var currentPage = $('.page-btn.bg-primary').data('page');
+        if (currentPage < 10) {
+          $('.page-btn[data-page="' + (currentPage + 1) + '"]').trigger('click');
+        }
+      });
+
+      // ===== 语音搜索按钮 =====
+      $('#voice-search-btn').on('click', function () {
+        console.log('需要调用第三方接口实现语音搜索功能');
+      });
+      $('#result-voice-btn').on('click', function () {
+        console.log('需要调用第三方接口实现语音搜索功能');
+      });
+
+      // ===== 拍照搜索按钮 =====
+      $('#camera-search-btn').on('click', function () {
+        console.log('需要调用第三方接口实现拍照搜索功能');
+      });
+      $('#result-camera-btn').on('click', function () {
+        console.log('需要调用第三方接口实现拍照搜索功能');
+      });
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

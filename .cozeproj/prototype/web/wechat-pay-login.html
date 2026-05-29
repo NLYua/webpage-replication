@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #62F6A8;
+      --color-primary-container:    #1A3D2B;
+      --color-on-primary:           #08111F;
+      /* === 背景 / 表面 === */
+      --color-background:                 #08111F;
+      --color-surface-container-lowest:   #0A1525;
+      --color-surface:                    #0E1A2D;
+      --color-surface-container:          #132240;
+      --color-surface-container-high:     #1A2D52;
+      --color-surface-container-highest:  #1D2B44;
+      /* === 文字 === */
+      --color-on-surface:           #E6EDF7;
+      --color-on-surface-variant:   #8EA0B8;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #1D2B44;
+      --color-outline-variant:  #253A5C;
+      /* === 圆角 === */
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.3);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.4);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.5);
+      /* === 字体 === */
+      --font-sans: "Inter", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-14 flex items-center justify-between px-6 border-b border-outline-variant/20">
+    <div class="flex items-center gap-2">
+      <i data-lucide="copy" class="text-primary w-5 h-5"></i>
+      <span class="font-bold text-base text-on-surface">WebClone</span>
+      <span class="text-xs text-on-surface-variant ml-1 font-mono bg-surface-container px-1.5 py-0.5 rounded">v1.0</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a href="home.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">总览</a>
+      <a href="baidu.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">百度首页</a>
+      <a href="wechat-pay-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md" aria-current="page">微信支付登录</a>
+      <a href="zhihu-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">知乎登录</a>
+      <a href="evaluation.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">一致性评估</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <button id="run-eval-btn" class="bg-primary text-on-primary px-3 py-1.5 rounded-md text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>运行评估
+      </button>
+    </div>
+  </header>
+  <!-- @nav:end 导航组件 -->
+
+  <!-- @main-content:start -->
+  <main class="flex min-h-[calc(100vh-3.5rem)]">
+    <!-- 左侧品牌展示区域 -->
+    <div class="hidden lg:flex lg:w-1/2 flex-col justify-center items-center relative overflow-hidden bg-surface-container-lowest">
+      <!-- 装饰性背景元素 -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-20 left-20 w-72 h-72 rounded-full bg-primary/20 blur-3xl"></div>
+        <div class="absolute bottom-32 right-16 w-96 h-96 rounded-full bg-primary/10 blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/3 w-48 h-48 rounded-full bg-primary/15 blur-2xl"></div>
+      </div>
+
+      <!-- 品牌内容 -->
+      <div class="relative z-10 flex flex-col items-center text-center px-12">
+        <!-- 微信支付 Logo 区域 -->
+        <div class="mb-10 flex items-center justify-center">
+          <div class="w-24 h-24 rounded-2xl bg-primary/15 flex items-center justify-center shadow-float border border-primary/20">
+            <svg viewBox="0 0 48 48" class="w-14 h-14" fill="none">
+              <!-- 微信支付标志性气泡图标 -->
+              <path d="M17.5 12C11.15 12 6 16.25 6 21.5c0 3 1.6 5.7 4.1 7.5L9 33l4.5-2.2c1.3.4 2.6.7 4 .7.4 0 .8 0 1.2-.1-.3-.9-.4-1.8-.4-2.8 0-5.8 5.3-10.6 11.7-10.6.5 0 1 0 1.5.1C29.8 14.2 24.1 12 17.5 12z" fill="#62F6A8"/>
+              <path d="M30 19.5c-5.5 0-10 3.8-10 8.5s4.5 8.5 10 8.5c1.2 0 2.3-.2 3.3-.5L37 38l-1-3.5c2-1.5 3.2-3.7 3.2-6 0-4.7-4.5-9-9.2-9z" fill="#62F6A8" opacity="0.7"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 品牌标语 -->
+        <h1 class="text-4xl font-bold text-on-surface mb-4 tracking-tight">微信支付</h1>
+        <p class="text-xl text-primary font-medium mb-6">不止支付</p>
+        <p class="text-sm text-on-surface-variant max-w-sm leading-relaxed">
+          微信支付商户平台，为商户提供安全、便捷、高效的支付解决方案，助力商业数字化转型
+        </p>
+
+        <!-- 特性列表 -->
+        <div class="mt-12 space-y-4 w-full max-w-xs">
+          <!-- 特性-安全 -->
+          <div class="flex items-center gap-3 text-left">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <i data-lucide="shield-check" class="w-5 h-5 text-primary"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-on-surface">安全可靠</p>
+              <p class="text-xs text-on-surface-variant">多重风控体系保障资金安全</p>
+            </div>
+          </div>
+          <!-- 特性-便捷 -->
+          <div class="flex items-center gap-3 text-left">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <i data-lucide="zap" class="w-5 h-5 text-primary"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-on-surface">便捷高效</p>
+              <p class="text-xs text-on-surface-variant">秒级到账，实时结算</p>
+            </div>
+          </div>
+          <!-- 特性-全面 -->
+          <div class="flex items-center gap-3 text-left">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <i data-lucide="globe" class="w-5 h-5 text-primary"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-on-surface">全面覆盖</p>
+              <p class="text-xs text-on-surface-variant">支持线上线下全场景支付</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧登录表单区域 -->
+    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 py-12 bg-background">
+      <div class="w-full max-w-md">
+        <!-- 移动端 Logo -->
+        <div class="lg:hidden flex items-center gap-3 mb-8">
+          <div class="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center border border-primary/20">
+            <svg viewBox="0 0 48 48" class="w-7 h-7" fill="none">
+              <path d="M17.5 12C11.15 12 6 16.25 6 21.5c0 3 1.6 5.7 4.1 7.5L9 33l4.5-2.2c1.3.4 2.6.7 4 .7.4 0 .8 0 1.2-.1-.3-.9-.4-1.8-.4-2.8 0-5.8 5.3-10.6 11.7-10.6.5 0 1 0 1.5.1C29.8 14.2 24.1 12 17.5 12z" fill="#62F6A8"/>
+              <path d="M30 19.5c-5.5 0-10 3.8-10 8.5s4.5 8.5 10 8.5c1.2 0 2.3-.2 3.3-.5L37 38l-1-3.5c2-1.5 3.2-3.7 3.2-6 0-4.7-4.5-9-9.2-9z" fill="#62F6A8" opacity="0.7"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold text-on-surface">微信支付商户平台</h1>
+            <p class="text-xs text-primary">不止支付</p>
+          </div>
+        </div>
+
+        <!-- 登录标题 -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-on-surface">商户登录</h2>
+          <p class="text-sm text-on-surface-variant mt-1.5">登录您的微信支付商户账号</p>
+        </div>
+
+        <!-- 登录表单 -->
+        <form id="login-form" class="space-y-5" onsubmit="return false;">
+          <!-- 用户名输入框 -->
+          <div>
+            <label for="input-username" class="block text-sm font-medium text-on-surface mb-1.5">用户名</label>
+            <div class="relative">
+              <div class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
+                <i data-lucide="user" class="w-4.5 h-4.5"></i>
+              </div>
+              <input id="input-username" type="text" placeholder="请输入商户号/用户名"
+                class="w-full bg-surface-container border-none rounded-md pl-10 pr-3 py-2.5 text-sm
+                       text-on-surface placeholder:text-on-surface-variant/50
+                       focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" />
+            </div>
+          </div>
+
+          <!-- 密码输入框 -->
+          <div>
+            <label for="input-password" class="block text-sm font-medium text-on-surface mb-1.5">密码</label>
+            <div class="relative">
+              <div class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
+                <i data-lucide="lock" class="w-4.5 h-4.5"></i>
+              </div>
+              <input id="input-password" type="password" placeholder="请输入密码"
+                class="w-full bg-surface-container border-none rounded-md pl-10 pr-10 py-2.5 text-sm
+                       text-on-surface placeholder:text-on-surface-variant/50
+                       focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" />
+              <button id="btn-toggle-password" type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors">
+                <i data-lucide="eye-off" class="w-4.5 h-4.5" id="icon-eye-off"></i>
+                <i data-lucide="eye" class="w-4.5 h-4.5 hidden" id="icon-eye-on"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 验证码输入框 + 验证码图片 -->
+          <div>
+            <label for="input-captcha" class="block text-sm font-medium text-on-surface mb-1.5">验证码</label>
+            <div class="flex gap-3">
+              <div class="relative flex-1">
+                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
+                  <i data-lucide="shield" class="w-4.5 h-4.5"></i>
+                </div>
+                <input id="input-captcha" type="text" placeholder="请输入验证码" maxlength="4"
+                  class="w-full bg-surface-container border-none rounded-md pl-10 pr-3 py-2.5 text-sm
+                         text-on-surface placeholder:text-on-surface-variant/50
+                         focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" />
+              </div>
+              <div id="captcha-image" class="w-[120px] h-[42px] rounded-md bg-surface-container-high flex items-center justify-center cursor-pointer select-none overflow-hidden shrink-0 hover:opacity-80 transition-opacity" title="点击刷新验证码">
+                <span id="captcha-text" class="text-lg font-bold tracking-widest text-on-surface-variant" style="font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3em;">A7K2</span>
+              </div>
+            </div>
+            <p class="text-xs text-on-surface-variant/60 mt-1.5">看不清？点击验证码图片刷新</p>
+          </div>
+
+          <!-- 记住我 -->
+          <div class="flex items-center gap-2">
+            <input id="checkbox-remember" type="checkbox"
+              class="w-4 h-4 rounded bg-surface-container border-outline-variant text-primary
+                     focus:ring-2 focus:ring-primary/30 cursor-pointer" />
+            <label for="checkbox-remember" class="text-sm text-on-surface-variant cursor-pointer select-none">记住我</label>
+          </div>
+
+          <!-- 登录按钮 -->
+          <button id="btn-login" type="submit"
+            class="w-full bg-primary text-on-primary py-2.5 rounded-md text-sm font-semibold
+                   hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 min-h-[42px]">
+            <span id="btn-login-text">登 录</span>
+            <svg id="btn-login-spinner" class="hidden animate-spin w-4.5 h-4.5" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.3"></circle>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+            </svg>
+          </button>
+        </form>
+
+        <!-- 底部链接 -->
+        <div class="mt-6 flex items-center justify-center gap-6">
+          <a href="#" id="link-forgot-password" class="text-sm text-primary hover:underline">忘记密码</a>
+          <span class="text-outline-variant">|</span>
+          <a href="#" id="link-register" class="text-sm text-primary hover:underline">注册账号</a>
+        </div>
+
+        <!-- 版权信息 -->
+        <div class="mt-16 text-center">
+          <p class="text-xs text-on-surface-variant/60">Copyright © 2012-2025 Tencent. All Rights Reserved.</p>
+          <p class="text-xs text-on-surface-variant/40 mt-1">微信支付 版权所有</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!-- @main-content:end -->
+
+  <!-- Toast 提示 -->
+  <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div id="toast-inner" class="flex items-center gap-2 px-5 py-3 rounded-lg shadow-dialog text-sm font-medium">
+      <i data-lucide="check-circle" class="w-5 h-5 hidden" id="toast-icon-success"></i>
+      <i data-lucide="x-circle" class="w-5 h-5 hidden" id="toast-icon-error"></i>
+      <span id="toast-message"></span>
+    </div>
+  </div>
+
+  <script>
+    $(function () {
+      // ========== 密码显示/隐藏切换 ==========
+      var passwordVisible = false;
+      $('#btn-toggle-password').on('click', function () {
+        passwordVisible = !passwordVisible;
+        if (passwordVisible) {
+          $('#input-password').attr('type', 'text');
+          $('#icon-eye-off').addClass('hidden');
+          $('#icon-eye-on').removeClass('hidden');
+        } else {
+          $('#input-password').attr('type', 'password');
+          $('#icon-eye-off').removeClass('hidden');
+          $('#icon-eye-on').addClass('hidden');
+        }
+        lucide.createIcons();
+      });
+
+      // ========== 验证码刷新 ==========
+      var captchaChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      function generateCaptcha() {
+        var code = '';
+        for (var i = 0; i < 4; i++) {
+          code += captchaChars.charAt(Math.floor(Math.random() * captchaChars.length));
+        }
+        return code;
+      }
+
+      $('#captcha-image').on('click', function () {
+        var newCode = generateCaptcha();
+        $('#captcha-text').text(newCode);
+        // 添加刷新动画
+        $(this).css('transform', 'scale(0.95)');
+        var self = this;
+        setTimeout(function () {
+          $(self).css('transform', 'scale(1)');
+        }, 150);
+      });
+
+      // ========== Toast 提示 ==========
+      function showToast(message, type) {
+        // type: 'success' 或 'error'
+        var $toast = $('#toast');
+        var $inner = $('#toast-inner');
+        var $msg = $('#toast-message');
+
+        $inner.removeClass('bg-success/15 text-success bg-error/15 text-error');
+        $('#toast-icon-success').addClass('hidden');
+        $('#toast-icon-error').addClass('hidden');
+
+        if (type === 'success') {
+          $inner.addClass('bg-success/15 text-success');
+          $('#toast-icon-success').removeClass('hidden');
+        } else {
+          $inner.addClass('bg-error/15 text-error');
+          $('#toast-icon-error').removeClass('hidden');
+        }
+
+        $msg.text(message);
+        $toast.removeClass('hidden');
+        lucide.createIcons();
+
+        // 3秒后自动关闭
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(function () {
+          $toast.addClass('hidden');
+        }, 3000);
+      }
+
+      // ========== 登录按钮点击 ==========
+      $('#login-form').on('submit', function (e) {
+        e.preventDefault();
+      });
+
+      $('#btn-login').on('click', function () {
+        var username = $('#input-username').val().trim();
+        var password = $('#input-password').val().trim();
+        var captcha = $('#input-captcha').val().trim();
+
+        // 表单验证
+        if (!username) {
+          showToast('请输入用户名', 'error');
+          $('#input-username').focus();
+          return;
+        }
+        if (!password) {
+          showToast('请输入密码', 'error');
+          $('#input-password').focus();
+          return;
+        }
+        if (!captcha) {
+          showToast('请输入验证码', 'error');
+          $('#input-captcha').focus();
+          return;
+        }
+
+        // 显示验证中状态
+        var $btn = $(this);
+        var $text = $('#btn-login-text');
+        var $spinner = $('#btn-login-spinner');
+
+        $btn.prop('disabled', true);
+        $text.text('验证中...');
+        $spinner.removeClass('hidden');
+
+        // 模拟登录过程
+        setTimeout(function () {
+          $btn.prop('disabled', false);
+          $text.text('登 录');
+          $spinner.addClass('hidden');
+
+          // demo项目不判断账密，直接显示成功
+          showToast('登录成功，正在跳转...', 'success');
+
+          // 模拟跳转延迟
+          setTimeout(function () {
+            // 登录成功后跳转到首页
+            window.location.href = 'home.html';
+          }, 1500);
+        }, 2000);
+      });
+
+      // ========== 底部链接点击 ==========
+      $('#link-forgot-password').on('click', function (e) {
+        e.preventDefault();
+        console.log('忘记密码 - 后续应实现：1. 跳转到找回密码页面；2. 页面包含商户号输入、手机号验证、新密码设置等步骤；3. 支持短信验证码和邮箱验证两种方式');
+      });
+
+      $('#link-register').on('click', function (e) {
+        e.preventDefault();
+        console.log('注册账号 - 后续应实现：1. 跳转到商户注册页面；2. 页面包含商户类型选择、资质信息填写、联系人信息、结算账户等步骤；3. 提交后进入审核流程');
+      });
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

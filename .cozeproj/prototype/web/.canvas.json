@@ -1,0 +1,44 @@
+{
+  "elements": [
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/home.html"
+      },
+      "title": "项目总览",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/baidu.html"
+      },
+      "title": "百度首页复刻",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/wechat-pay-login.html"
+      },
+      "title": "微信支付登录复刻",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/zhihu-login.html"
+      },
+      "title": "知乎登录复刻",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/evaluation.html"
+      },
+      "title": "一致性评估",
+      "size": "web"
+    }
+  ]
+}

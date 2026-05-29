@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #62F6A8;
+      --color-primary-container:    #1A3D2B;
+      --color-on-primary:           #08111F;
+      /* === 背景 / 表面 === */
+      --color-background:                 #08111F;
+      --color-surface-container-lowest:   #0A1525;
+      --color-surface:                    #0E1A2D;
+      --color-surface-container:          #132240;
+      --color-surface-container-high:     #1A2D52;
+      --color-surface-container-highest:  #1D2B44;
+      /* === 文字 === */
+      --color-on-surface:           #E6EDF7;
+      --color-on-surface-variant:   #8EA0B8;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #1D2B44;
+      --color-outline-variant:  #253A5C;
+      /* === 圆角 === */
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.3);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.4);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.5);
+      /* === 字体 === */
+      --font-sans: "Inter", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+
+  <style>
+    /* 环形进度条动画 */
+    @keyframes ring-fill {
+      from { stroke-dashoffset: 251.2; }
+    }
+    .score-ring-circle {
+      animation: ring-fill 1.2s ease-out forwards;
+    }
+    /* 评分数字渐入 */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up {
+      animation: fade-up 0.6s ease-out forwards;
+    }
+    /* 脉冲光点 */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .pulse-dot {
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-14 flex items-center justify-between px-6 border-b border-outline-variant/20">
+    <div class="flex items-center gap-2">
+      <i data-lucide="copy" class="text-primary w-5 h-5"></i>
+      <span class="font-bold text-base text-on-surface">WebClone</span>
+      <span class="text-xs text-on-surface-variant ml-1 font-mono bg-surface-container px-1.5 py-0.5 rounded">v1.0</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a href="home.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">总览</a>
+      <a href="baidu.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">百度首页</a>
+      <a href="wechat-pay-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">微信支付登录</a>
+      <a href="zhihu-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">知乎登录</a>
+      <a href="evaluation.html" class="nav-link px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md" aria-current="page">一致性评估</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <button id="run-eval-btn" class="bg-primary text-on-primary px-3 py-1.5 rounded-md text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>运行评估
+      </button>
+    </div>
+  </header>
+  <!-- @nav:end 导航组件 -->
+
+  <!-- @main-content:start -->
+  <main class="max-w-7xl mx-auto p-6">
+
+    <!-- 页面标题区 -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-on-surface">一致性评估报告</h1>
+        <p class="text-sm text-on-surface-variant mt-1">对复刻页面进行自动化质量评估，覆盖视觉、功能与交互三个维度</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="eval-timestamp" class="text-xs text-on-surface-variant font-mono">最近评估：2024-12-20 14:32:08</span>
+        <button id="run-eval-main-btn" class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+          <i data-lucide="play" class="w-3.5 h-3.5"></i>运行评估
+        </button>
+      </div>
+    </div>
+
+    <!-- 总体评分区域 -->
+    <div class="grid grid-cols-4 gap-5 mb-8">
+
+      <!-- 综合评分卡片 -->
+      <div class="bg-surface rounded-lg shadow-card p-5 flex flex-col items-center justify-center col-span-1">
+        <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">综合评分</span>
+        <div class="relative w-32 h-32 flex items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#1D2B44" stroke-width="6"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#62F6A8" stroke-width="6"
+                    stroke-dasharray="251.2" stroke-dashoffset="37.68" stroke-linecap="round"
+                    class="score-ring-circle"/>
+          </svg>
+          <div class="text-center animate-fade-up">
+            <span id="overall-score" class="text-4xl font-bold text-primary font-mono">85</span>
+            <span class="text-xs text-on-surface-variant block mt-0.5">/ 100</span>
+          </div>
+        </div>
+        <span id="overall-badge" class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">良好</span>
+        <div class="flex items-center gap-1.5 mt-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary pulse-dot"></span>
+          <span class="text-xs text-on-surface-variant">3 个页面已评估</span>
+        </div>
+      </div>
+
+      <!-- 视觉一致性 -->
+      <div class="bg-surface rounded-lg shadow-card p-5 flex flex-col items-center justify-center col-span-1">
+        <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">视觉一致性</span>
+        <div class="relative w-28 h-28 flex items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#1D2B44" stroke-width="5"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#62F6A8" stroke-width="5"
+                    stroke-dasharray="251.2" stroke-dashoffset="35.17" stroke-linecap="round"
+                    class="score-ring-circle"/>
+          </svg>
+          <div class="text-center animate-fade-up">
+            <span id="visual-score" class="text-3xl font-bold text-primary font-mono">86</span>
+          </div>
+        </div>
+        <span id="visual-badge" class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">良好</span>
+        <div class="mt-2 text-xs text-on-surface-variant">颜色 · 布局 · 字体</div>
+      </div>
+
+      <!-- 功能一致性 -->
+      <div class="bg-surface rounded-lg shadow-card p-5 flex flex-col items-center justify-center col-span-1">
+        <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">功能一致性</span>
+        <div class="relative w-28 h-28 flex items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#1D2B44" stroke-width="5"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#62F6A8" stroke-width="5"
+                    stroke-dasharray="251.2" stroke-dashoffset="25.12" stroke-linecap="round"
+                    class="score-ring-circle"/>
+          </svg>
+          <div class="text-center animate-fade-up">
+            <span id="func-score" class="text-3xl font-bold text-primary font-mono">90</span>
+          </div>
+        </div>
+        <span id="func-badge" class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">优秀</span>
+        <div class="mt-2 text-xs text-on-surface-variant">交互 · 数据 · 流程</div>
+      </div>
+
+      <!-- 交互一致性 -->
+      <div class="bg-surface rounded-lg shadow-card p-5 flex flex-col items-center justify-center col-span-1">
+        <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wide mb-3">交互一致性</span>
+        <div class="relative w-28 h-28 flex items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#1D2B44" stroke-width="5"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" stroke-width="5"
+                    stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-linecap="round"
+                    class="score-ring-circle"/>
+          </svg>
+          <div class="text-center animate-fade-up">
+            <span id="interact-score" class="text-3xl font-bold text-warning font-mono">75</span>
+          </div>
+        </div>
+        <span id="interact-badge" class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">一般</span>
+        <div class="mt-2 text-xs text-on-surface-variant">反馈 · 动效 · 手势</div>
+      </div>
+    </div>
+
+    <!-- 各页面评估详情卡片 -->
+    <div class="mb-8">
+      <h2 class="text-base font-semibold text-on-surface mb-4 flex items-center gap-2">
+        <i data-lucide="layout-grid" class="w-4 h-4 text-primary"></i>
+        页面评估详情
+      </h2>
+      <div class="grid grid-cols-3 gap-5">
+
+        <!-- 卡片-百度首页 -->
+        <div id="card-baidu" class="bg-surface rounded-lg shadow-card overflow-hidden hover:shadow-float transition-shadow cursor-pointer">
+          <div class="h-36 bg-surface-container flex items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+            <div class="flex flex-col items-center gap-2">
+              <i data-lucide="globe" class="w-8 h-8 text-primary/40"></i>
+              <span class="text-xs text-on-surface-variant">百度首页缩略图</span>
+            </div>
+            <span class="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">优秀</span>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-on-surface">百度首页</h3>
+              <span class="text-lg font-bold text-primary font-mono">88</span>
+            </div>
+            <div class="space-y-2 mb-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">视觉一致性</span>
+                <span class="text-xs font-mono font-medium text-primary">91</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full" style="width:91%"></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">功能一致性</span>
+                <span class="text-xs font-mono font-medium text-primary">90</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full" style="width:90%"></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">交互一致性</span>
+                <span class="text-xs font-mono font-medium text-warning">82</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-warning rounded-full" style="width:82%"></div>
+              </div>
+            </div>
+            <div class="space-y-1.5 pt-2 border-t border-outline-variant/20">
+              <!-- 指标-颜色匹配度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="palette" class="w-3 h-3"></i>颜色匹配度
+                </span>
+                <span class="text-xs font-mono text-on-surface">94%</span>
+              </div>
+              <!-- 指标-布局结构相似度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="layout" class="w-3 h-3"></i>布局结构相似度
+                </span>
+                <span class="text-xs font-mono text-on-surface">89%</span>
+              </div>
+              <!-- 指标-功能完整度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="check-circle" class="w-3 h-3"></i>功能完整度
+                </span>
+                <span class="text-xs font-mono text-on-surface">90%</span>
+              </div>
+              <!-- 指标-交互反馈一致性 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="mouse-pointer-click" class="w-3 h-3"></i>交互反馈一致性
+                </span>
+                <span class="text-xs font-mono text-on-surface">82%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片-微信支付登录 -->
+        <div id="card-wechat" class="bg-surface rounded-lg shadow-card overflow-hidden hover:shadow-float transition-shadow cursor-pointer">
+          <div class="h-36 bg-surface-container flex items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-success/5 to-transparent"></div>
+            <div class="flex flex-col items-center gap-2">
+              <i data-lucide="smartphone" class="w-8 h-8 text-success/40"></i>
+              <span class="text-xs text-on-surface-variant">微信支付登录缩略图</span>
+            </div>
+            <span class="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">良好</span>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-on-surface">微信支付登录</h3>
+              <span class="text-lg font-bold text-primary font-mono">83</span>
+            </div>
+            <div class="space-y-2 mb-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">视觉一致性</span>
+                <span class="text-xs font-mono font-medium text-primary">85</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full" style="width:85%"></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">功能一致性</span>
+                <span class="text-xs font-mono font-medium text-primary">88</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full" style="width:88%"></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">交互一致性</span>
+                <span class="text-xs font-mono font-medium text-warning">74</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-warning rounded-full" style="width:74%"></div>
+              </div>
+            </div>
+            <div class="space-y-1.5 pt-2 border-t border-outline-variant/20">
+              <!-- 指标-颜色匹配度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="palette" class="w-3 h-3"></i>颜色匹配度
+                </span>
+                <span class="text-xs font-mono text-on-surface">87%</span>
+              </div>
+              <!-- 指标-布局结构相似度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="layout" class="w-3 h-3"></i>布局结构相似度
+                </span>
+                <span class="text-xs font-mono text-on-surface">83%</span>
+              </div>
+              <!-- 指标-功能完整度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="check-circle" class="w-3 h-3"></i>功能完整度
+                </span>
+                <span class="text-xs font-mono text-on-surface">88%</span>
+              </div>
+              <!-- 指标-交互反馈一致性 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="mouse-pointer-click" class="w-3 h-3"></i>交互反馈一致性
+                </span>
+                <span class="text-xs font-mono text-on-surface">74%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片-知乎登录 -->
+        <div id="card-zhihu" class="bg-surface rounded-lg shadow-card overflow-hidden hover:shadow-float transition-shadow cursor-pointer">
+          <div class="h-36 bg-surface-container flex items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-warning/5 to-transparent"></div>
+            <div class="flex flex-col items-center gap-2">
+              <i data-lucide="book-open" class="w-8 h-8 text-warning/40"></i>
+              <span class="text-xs text-on-surface-variant">知乎登录缩略图</span>
+            </div>
+            <span class="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">一般</span>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-on-surface">知乎登录</h3>
+              <span class="text-lg font-bold text-warning font-mono">72</span>
+            </div>
+            <div class="space-y-2 mb-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">视觉一致性</span>
+                <span class="text-xs font-mono font-medium text-warning">78</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-warning rounded-full" style="width:78%"></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">功能一致性</span>
+                <span class="text-xs font-mono font-medium text-primary">85</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full" style="width:85%"></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">交互一致性</span>
+                <span class="text-xs font-mono font-medium text-error">65</span>
+              </div>
+              <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div class="h-full bg-error rounded-full" style="width:65%"></div>
+              </div>
+            </div>
+            <div class="space-y-1.5 pt-2 border-t border-outline-variant/20">
+              <!-- 指标-颜色匹配度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="palette" class="w-3 h-3"></i>颜色匹配度
+                </span>
+                <span class="text-xs font-mono text-on-surface">76%</span>
+              </div>
+              <!-- 指标-布局结构相似度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="layout" class="w-3 h-3"></i>布局结构相似度
+                </span>
+                <span class="text-xs font-mono text-on-surface">80%</span>
+              </div>
+              <!-- 指标-功能完整度 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="check-circle" class="w-3 h-3"></i>功能完整度
+                </span>
+                <span class="text-xs font-mono text-on-surface">85%</span>
+              </div>
+              <!-- 指标-交互反馈一致性 -->
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1.5">
+                  <i data-lucide="mouse-pointer-click" class="w-3 h-3"></i>交互反馈一致性
+                </span>
+                <span class="text-xs font-mono text-on-surface">65%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 详细对比表格 -->
+    <div class="mb-8">
+      <h2 class="text-base font-semibold text-on-surface mb-4 flex items-center gap-2">
+        <i data-lucide="table-2" class="w-4 h-4 text-primary"></i>
+        详细对比表
+      </h2>
+      <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+        <!-- 表头 -->
+        <div class="grid grid-cols-5 px-5 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+          <span>评估项</span>
+          <span class="text-center">百度首页</span>
+          <span class="text-center">微信支付</span>
+          <span class="text-center">知乎</span>
+          <span class="text-center">权重</span>
+        </div>
+        <div class="divide-y divide-outline-variant/30">
+
+          <!-- 表格行-颜色匹配度 -->
+          <div class="grid grid-cols-5 px-5 py-3 hover:bg-surface-container/50 transition-colors items-center">
+            <span class="text-sm font-medium text-on-surface flex items-center gap-2">
+              <i data-lucide="palette" class="w-3.5 h-3.5 text-on-surface-variant"></i>颜色匹配度
+            </span>
+            <span class="text-center text-sm font-mono text-primary font-medium">94</span>
+            <span class="text-center text-sm font-mono text-primary font-medium">87</span>
+            <span class="text-center text-sm font-mono text-warning font-medium">76</span>
+            <span class="text-center text-sm font-mono text-on-surface-variant">20%</span>
+          </div>
+
+          <!-- 表格行-布局结构相似度 -->
+          <div class="grid grid-cols-5 px-5 py-3 hover:bg-surface-container/50 transition-colors items-center">
+            <span class="text-sm font-medium text-on-surface flex items-center gap-2">
+              <i data-lucide="layout" class="w-3.5 h-3.5 text-on-surface-variant"></i>布局结构相似度
+            </span>
+            <span class="text-center text-sm font-mono text-primary font-medium">89</span>
+            <span class="text-center text-sm font-mono text-primary font-medium">83</span>
+            <span class="text-center text-sm font-mono text-warning font-medium">80</span>
+            <span class="text-center text-sm font-mono text-on-surface-variant">20%</span>
+          </div>
+
+          <!-- 表格行-字体排版一致性 -->
+          <div class="grid grid-cols-5 px-5 py-3 hover:bg-surface-container/50 transition-colors items-center">
+            <span class="text-sm font-medium text-on-surface flex items-center gap-2">
+              <i data-lucide="type" class="w-3.5 h-3.5 text-on-surface-variant"></i>字体排版一致性
+            </span>
+            <span class="text-center text-sm font-mono text-primary font-medium">92</span>
+            <span class="text-center text-sm font-mono text-primary font-medium">86</span>
+            <span class="text-center text-sm font-mono text-warning font-medium">79</span>
+            <span class="text-center text-sm font-mono text-on-surface-variant">10%</span>
+          </div>
+
+          <!-- 表格行-功能完整度 -->
+          <div class="grid grid-cols-5 px-5 py-3 hover:bg-surface-container/50 transition-colors items-center">
+            <span class="text-sm font-medium text-on-surface flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 text-on-surface-variant"></i>功能完整度
+            </span>
+            <span class="text-center text-sm font-mono text-primary font-medium">90</span>
+            <span class="text-center text-sm font-mono text-primary font-medium">88</span>
+            <span class="text-center text-sm font-mono text-primary font-medium">85</span>
+            <span class="text-center text-sm font-mono text-on-surface-variant">25%</span>
+          </div>
+
+          <!-- 表格行-交互反馈一致性 -->
+          <div class="grid grid-cols-5 px-5 py-3 hover:bg-surface-container/50 transition-colors items-center">
+            <span class="text-sm font-medium text-on-surface flex items-center gap-2">
+              <i data-lucide="mouse-pointer-click" class="w-3.5 h-3.5 text-on-surface-variant"></i>交互反馈一致性
+            </span>
+            <span class="text-center text-sm font-mono text-warning font-medium">82</span>
+            <span class="text-center text-sm font-mono text-warning font-medium">74</span>
+            <span class="text-center text-sm font-mono text-error font-medium">65</span>
+            <span class="text-center text-sm font-mono text-on-surface-variant">15%</span>
+          </div>
+
+          <!-- 表格行-动效流畅度 -->
+          <div class="grid grid-cols-5 px-5 py-3 hover:bg-surface-container/50 transition-colors items-center">
+            <span class="text-sm font-medium text-on-surface flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-on-surface-variant"></i>动效流畅度
+            </span>
+            <span class="text-center text-sm font-mono text-warning font-medium">78</span>
+            <span class="text-center text-sm font-mono text-warning font-medium">72</span>
+            <span class="text-center text-sm font-mono text-error font-medium">58</span>
+            <span class="text-center text-sm font-mono text-on-surface-variant">10%</span>
+          </div>
+
+          <!-- 表格行-加权总分 -->
+          <div class="grid grid-cols-5 px-5 py-3 bg-surface-container/50 items-center">
+            <span class="text-sm font-bold text-on-surface flex items-center gap-2">
+              <i data-lucide="trophy" class="w-3.5 h-3.5 text-primary"></i>加权总分
+            </span>
+            <span class="text-center text-base font-mono font-bold text-primary">88</span>
+            <span class="text-center text-base font-mono font-bold text-primary">83</span>
+            <span class="text-center text-base font-mono font-bold text-warning">72</span>
+            <span class="text-center text-sm font-mono text-on-surface-variant">100%</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 评估方法说明 -->
+    <div class="mb-6">
+      <h2 class="text-base font-semibold text-on-surface mb-4 flex items-center gap-2">
+        <i data-lucide="flask-conical" class="w-4 h-4 text-primary"></i>
+        评估方法说明
+      </h2>
+      <div class="grid grid-cols-2 gap-4">
+
+        <!-- 方法-DOM结构对比 -->
+        <div id="method-dom" class="bg-surface rounded-lg shadow-card p-5 flex gap-4">
+          <div class="w-10 h-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+            <i data-lucide="code-2" class="w-5 h-5 text-primary"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-on-surface mb-1">DOM 结构对比</h3>
+            <p class="text-xs text-on-surface-variant leading-relaxed">逐层对比原始页面与复刻页面的 DOM 树结构，分析标签层级、节点数量、属性差异，计算结构相似度得分。支持忽略白空间节点和注释节点的智能匹配。</p>
+          </div>
+        </div>
+
+        <!-- 方法-CSS属性对比 -->
+        <div id="method-css" class="bg-surface rounded-lg shadow-card p-5 flex gap-4">
+          <div class="w-10 h-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+            <i data-lucide="paintbrush" class="w-5 h-5 text-primary"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-on-surface mb-1">CSS 属性对比</h3>
+            <p class="text-xs text-on-surface-variant leading-relaxed">提取计算后的 CSS 样式，逐属性对比颜色值、间距、字号、圆角等视觉属性，以加权欧氏距离衡量差异程度，输出属性级匹配率。</p>
+          </div>
+        </div>
+
+        <!-- 方法-像素级视觉对比 -->
+        <div id="method-pixel" class="bg-surface rounded-lg shadow-card p-5 flex gap-4">
+          <div class="w-10 h-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+            <i data-lucide="scan-eye" class="w-5 h-5 text-primary"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-on-surface mb-1">像素级视觉对比</h3>
+            <p class="text-xs text-on-surface-variant leading-relaxed">对原始与复刻页面进行同分辨率截图，通过 SSIM 算法进行像素级相似度分析，识别视觉偏移区域并生成差异热力图。</p>
+          </div>
+        </div>
+
+        <!-- 方法-功能测试用例覆盖率 -->
+        <div id="method-coverage" class="bg-surface rounded-lg shadow-card p-5 flex gap-4">
+          <div class="w-10 h-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+            <i data-lucide="test-tubes" class="w-5 h-5 text-primary"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-on-surface mb-1">功能测试用例覆盖率</h3>
+            <p class="text-xs text-on-surface-variant leading-relaxed">基于预定义交互测试用例，自动化验证复刻页面的功能行为是否与原始页面一致，包括表单提交、按钮响应、页面跳转等核心流程。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 运行评估 Toast -->
+    <div id="eval-toast" class="fixed bottom-6 right-6 bg-surface-container-high text-on-surface px-5 py-3 rounded-lg shadow-float text-sm flex items-center gap-3 z-50 hidden">
+      <i data-lucide="loader-2" class="w-4 h-4 text-primary animate-spin"></i>
+      <span id="eval-toast-text">正在运行评估…</span>
+    </div>
+
+  </main>
+  <!-- @main-content:end -->
+
+  <script>
+  $(function() {
+
+    // 运行评估按钮 - 点击后模拟评估过程
+    $('#run-eval-btn, #run-eval-main-btn').on('click', function() {
+      var $toast = $('#eval-toast');
+      var $toastText = $('#eval-toast-text');
+
+      // 显示 toast - 正在评估
+      $toast.removeClass('hidden');
+      $toastText.text('正在运行评估…');
+
+      // 模拟评估完成（3秒后）
+      setTimeout(function() {
+        $toastText.text('评估完成！评分已更新');
+        // 更新时间戳
+        var now = new Date();
+        var ts = now.getFullYear() + '-' +
+                 String(now.getMonth()+1).padStart(2,'0') + '-' +
+                 String(now.getDate()).padStart(2,'0') + ' ' +
+                 String(now.getHours()).padStart(2,'0') + ':' +
+                 String(now.getMinutes()).padStart(2,'0') + ':' +
+                 String(now.getSeconds()).padStart(2,'0');
+        $('#eval-timestamp').text('最近评估：' + ts);
+
+        // 3秒后隐藏 toast
+        setTimeout(function() {
+          $toast.addClass('hidden');
+        }, 3000);
+      }, 3000);
+    });
+
+    // 页面详情卡片点击跳转
+    $('#card-baidu').on('click', function() {
+      window.location.href = 'baidu.html';
+    });
+
+    $('#card-wechat').on('click', function() {
+      window.location.href = 'wechat-pay-login.html';
+    });
+
+    $('#card-zhihu').on('click', function() {
+      window.location.href = 'zhihu-login.html';
+    });
+
+  });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

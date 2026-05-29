@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #62F6A8;
+      --color-primary-container:    #1A3D2B;
+      --color-on-primary:           #08111F;
+      /* === 背景 / 表面 === */
+      --color-background:                 #08111F;
+      --color-surface-container-lowest:   #0A1525;
+      --color-surface:                    #0E1A2D;
+      --color-surface-container:          #132240;
+      --color-surface-container-high:     #1A2D52;
+      --color-surface-container-highest:  #1D2B44;
+      /* === 文字 === */
+      --color-on-surface:           #E6EDF7;
+      --color-on-surface-variant:   #8EA0B8;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #ef4444;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #1D2B44;
+      --color-outline-variant:  #253A5C;
+      /* === 圆角 === */
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 2px 8px rgba(0,0,0,0.3);
+      --shadow-float:  0 10px 25px rgba(0,0,0,0.4);
+      --shadow-dialog: 0 25px 50px rgba(0,0,0,0.5);
+      /* === 字体 === */
+      --font-sans: "Inter", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
+  </style>
+
+  <!-- 图片兜底 -->
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-14 flex items-center justify-between px-6 border-b border-outline-variant/20">
+    <div class="flex items-center gap-2">
+      <i data-lucide="copy" class="text-primary w-5 h-5"></i>
+      <span class="font-bold text-base text-on-surface">WebClone</span>
+      <span class="text-xs text-on-surface-variant ml-1 font-mono bg-surface-container px-1.5 py-0.5 rounded">v1.0</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a href="home.html" class="nav-link px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md" aria-current="page">总览</a>
+      <a href="baidu.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">百度首页</a>
+      <a href="wechat-pay-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">微信支付登录</a>
+      <a href="zhihu-login.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">知乎登录</a>
+      <a href="evaluation.html" class="nav-link px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">一致性评估</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <button id="run-eval-btn" class="bg-primary text-on-primary px-3 py-1.5 rounded-md text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>运行评估
+      </button>
+    </div>
+  </header>
+  <!-- @nav:end 导航组件 -->
+
+  <!-- @main-content:start -->
+  <main class="max-w-7xl mx-auto p-6">
+
+    <!-- 顶部：项目标题区域 -->
+    <section class="mb-10">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+          <i data-lucide="code-2" class="w-5 h-5 text-primary"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-on-surface">WebClone - 基于AI工具的网页复刻与一致性评估</h1>
+        </div>
+      </div>
+      <p class="text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+        利用 AI 驱动的代码生成工具，对目标网页进行像素级复刻，并通过自动化一致性评估体系量化复刻结果与原始页面的视觉与功能差异，为前端开发效能提升提供可量化的参考依据。
+      </p>
+      <div class="flex items-center gap-4 mt-4">
+        <span class="inline-flex items-center gap-1.5 text-xs text-on-surface-variant font-mono">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          3 个复刻页面
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-xs text-on-surface-variant font-mono">
+          <span class="w-2 h-2 rounded-full bg-warning"></span>
+          评估进行中
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-xs text-on-surface-variant font-mono">
+          <i data-lucide="git-branch" class="w-3 h-3"></i>
+          main
+        </span>
+      </div>
+    </section>
+
+    <!-- 中部：复刻页面卡片 -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-base font-semibold text-on-surface flex items-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4 text-primary"></i>
+          复刻页面
+        </h2>
+        <span class="text-xs text-on-surface-variant font-mono">共 3 个页面</span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-5">
+
+        <!-- 卡片-百度首页 -->
+        <div id="card-baidu" class="bg-surface rounded-lg shadow-card border border-outline-variant/15 p-5 flex flex-col hover:border-primary/30 transition-colors cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center">
+                <i data-lucide="search" class="w-4.5 h-4.5 text-primary"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-semibold text-on-surface">百度首页</h3>
+                <span class="text-xs text-on-surface-variant font-mono">baidu.com</span>
+              </div>
+            </div>
+            <!-- 类型标签：内容展示型 -->
+            <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">内容展示型</span>
+          </div>
+
+          <!-- 核心功能列表 -->
+          <div class="flex-1 mb-4">
+            <p class="text-xs text-on-surface-variant mb-2 font-medium uppercase tracking-wide">核心功能</p>
+            <ul class="space-y-1.5">
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                搜索输入与自动补全
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                热搜榜单展示
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                导航栏与快捷入口
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                底部链接与版权信息
+              </li>
+            </ul>
+          </div>
+
+          <!-- 复刻状态指示器 -->
+          <div class="flex items-center justify-between pt-3 border-t border-outline-variant/15">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-success"></span>
+              <span class="text-xs font-medium text-success">复刻完成</span>
+            </div>
+            <span class="text-xs text-on-surface-variant font-mono">一致率 94.2%</span>
+          </div>
+        </div>
+
+        <!-- 卡片-微信支付商户登录 -->
+        <div id="card-wechat" class="bg-surface rounded-lg shadow-card border border-outline-variant/15 p-5 flex flex-col hover:border-primary/30 transition-colors cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center">
+                <i data-lucide="shield-check" class="w-4.5 h-4.5 text-primary"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-semibold text-on-surface">微信支付商户登录</h3>
+                <span class="text-xs text-on-surface-variant font-mono">pay.weixin.qq.com</span>
+              </div>
+            </div>
+            <!-- 类型标签：表单交互型 -->
+            <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">表单交互型</span>
+          </div>
+
+          <!-- 核心功能列表 -->
+          <div class="flex-1 mb-4">
+            <p class="text-xs text-on-surface-variant mb-2 font-medium uppercase tracking-wide">核心功能</p>
+            <ul class="space-y-1.5">
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                账号密码登录表单
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                微信扫码登录交互
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                验证码发送与校验
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                登录方式切换 Tabs
+              </li>
+            </ul>
+          </div>
+
+          <!-- 复刻状态指示器 -->
+          <div class="flex items-center justify-between pt-3 border-t border-outline-variant/15">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-warning"></span>
+              <span class="text-xs font-medium text-warning">评估中</span>
+            </div>
+            <span class="text-xs text-on-surface-variant font-mono">一致率 87.6%</span>
+          </div>
+        </div>
+
+        <!-- 卡片-知乎登录 -->
+        <div id="card-zhihu" class="bg-surface rounded-lg shadow-card border border-outline-variant/15 p-5 flex flex-col hover:border-primary/30 transition-colors cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center">
+                <i data-lucide="message-circle" class="w-4.5 h-4.5 text-primary"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-semibold text-on-surface">知乎登录</h3>
+                <span class="text-xs text-on-surface-variant font-mono">zhihu.com</span>
+              </div>
+            </div>
+            <!-- 类型标签：表单交互型 -->
+            <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">表单交互型</span>
+          </div>
+
+          <!-- 核心功能列表 -->
+          <div class="flex-1 mb-4">
+            <p class="text-xs text-on-surface-variant mb-2 font-medium uppercase tracking-wide">核心功能</p>
+            <ul class="space-y-1.5">
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                手机号 + 验证码登录
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                第三方账号快捷登录
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                注册 / 登录模式切换
+              </li>
+              <li class="flex items-center gap-2 text-sm text-on-surface">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary shrink-0"></i>
+                社交协议勾选交互
+              </li>
+            </ul>
+          </div>
+
+          <!-- 复刻状态指示器 -->
+          <div class="flex items-center justify-between pt-3 border-t border-outline-variant/15">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-success"></span>
+              <span class="text-xs font-medium text-success">复刻完成</span>
+            </div>
+            <span class="text-xs text-on-surface-variant font-mono">一致率 91.3%</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 快速评估入口 -->
+    <section class="mb-10">
+      <div class="bg-surface rounded-lg shadow-card border border-outline-variant/15 p-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <i data-lucide="scan-search" class="w-6 h-6 text-primary"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-on-surface">快速一致性评估</h2>
+            <p class="text-sm text-on-surface-variant mt-0.5">对已完成的复刻页面运行自动化视觉与功能一致性检测，生成量化评估报告</p>
+          </div>
+        </div>
+        <button id="btn-quick-eval" class="bg-primary text-on-primary px-5 py-2.5 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2">
+          <i data-lucide="play" class="w-4 h-4"></i>
+          运行评估
+        </button>
+      </div>
+    </section>
+
+    <!-- 底部：技术栈信息 -->
+    <section class="mb-6">
+      <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="layers" class="w-4 h-4 text-primary"></i>
+        <h2 class="text-base font-semibold text-on-surface">技术栈</h2>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 bg-surface-container border border-outline-variant/15 rounded-md px-3 py-2 text-sm font-mono">
+          <i data-lucide="hexagon" class="w-3.5 h-3.5 text-primary"></i>
+          Next.js 16
+        </span>
+        <span class="inline-flex items-center gap-1.5 bg-surface-container border border-outline-variant/15 rounded-md px-3 py-2 text-sm font-mono">
+          <i data-lucide="atom" class="w-3.5 h-3.5 text-primary"></i>
+          React 19
+        </span>
+        <span class="inline-flex items-center gap-1.5 bg-surface-container border border-outline-variant/15 rounded-md px-3 py-2 text-sm font-mono">
+          <i data-lucide="file-code-2" class="w-3.5 h-3.5 text-primary"></i>
+          TypeScript 5
+        </span>
+        <span class="inline-flex items-center gap-1.5 bg-surface-container border border-outline-variant/15 rounded-md px-3 py-2 text-sm font-mono">
+          <i data-lucide="wind" class="w-3.5 h-3.5 text-primary"></i>
+          Tailwind CSS 4
+        </span>
+      </div>
+    </section>
+
+  </main>
+  <!-- @main-content:end -->
+
+  <script>
+    $(function () {
+      // 卡片点击 - 跳转到对应复刻页面
+      $('#card-baidu').on('click', function () {
+        window.location.href = 'baidu.html';
+      });
+
+      $('#card-wechat').on('click', function () {
+        window.location.href = 'wechat-pay-login.html';
+      });
+
+      $('#card-zhihu').on('click', function () {
+        window.location.href = 'zhihu-login.html';
+      });
+
+      // 快速评估按钮 - 跳转到评估页面
+      $('#btn-quick-eval').on('click', function () {
+        window.location.href = 'evaluation.html';
+      });
+
+      // 顶栏运行评估按钮 - 跳转到评估页面
+      $('#run-eval-btn').on('click', function () {
+        window.location.href = 'evaluation.html';
+      });
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>
