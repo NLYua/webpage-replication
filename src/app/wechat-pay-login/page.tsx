@@ -38,6 +38,10 @@ export default function WechatPayLoginPage() {
     setCaptchaCode(generateCaptcha());
   }, []);
 
+  const isCaptchaValid = useCallback((value: string) => {
+    return /^[A-Z0-9]{4}$/.test(value.trim().toUpperCase());
+  }, []);
+
   const handleLogin = useCallback(() => {
     if (!username.trim()) {
       showToast('请输入用户名', 'error');
@@ -47,8 +51,19 @@ export default function WechatPayLoginPage() {
       showToast('请输入密码', 'error');
       return;
     }
-    if (!captcha.trim()) {
+    const rawCaptcha = captcha.trim().toUpperCase();
+    if (!rawCaptcha) {
       showToast('请输入验证码', 'error');
+      return;
+    }
+    if (!isCaptchaValid(rawCaptcha)) {
+      showToast('验证码位数不对，请输入4位验证码', 'error');
+      return;
+    }
+    if (rawCaptcha !== captchaCode) {
+      showToast('验证码错误，请重新输入', 'error');
+      setCaptcha('');
+      refreshCaptcha();
       return;
     }
 
@@ -57,7 +72,7 @@ export default function WechatPayLoginPage() {
       setLoading(false);
       showToast('登录成功，正在跳转...', 'success');
     }, 2000);
-  }, [username, password, captcha, showToast]);
+  }, [username, password, captcha, captchaCode, showToast, refreshCaptcha, isCaptchaValid]);
 
   return (
     <main className="flex min-h-[calc(100vh-3.5rem)]">

@@ -13,49 +13,103 @@ const HOT_SEARCHES = [
   { keyword: '电影票房排行榜', rank: 8, hot: false },
 ];
 
-const SEARCH_RESULTS = [
-  {
-    title: '人工智能 - 百度百科',
-    url: 'baike.baidu.com',
-    date: '2024-12-20',
-    snippet: '人工智能（Artificial Intelligence），英文缩写为AI。它是研究、开发用于模拟、延伸和扩展人的智能的理论、方法、技术及应用系统的一门新的技术科学。人工智能是计算机科学的一个分支…',
-  },
-  {
-    title: '什么是人工智能？AI技术的现状与未来发展趋势 - 知乎专栏',
-    url: 'zhuanlan.zhihu.com',
-    date: '2025-01-05',
-    snippet: '本文详细介绍了人工智能的定义、发展历程以及当前主流技术方向，包括机器学习、深度学习、自然语言处理等核心领域。同时分析了AI技术在医疗、金融、教育等行业的应用前景…',
-  },
-  {
-    title: '2025年人工智能十大趋势预测 - 36氪',
-    url: '36kr.com',
-    date: '2025-02-18',
-    snippet: '随着大模型技术的持续突破，2025年人工智能领域将迎来新的变革。从多模态融合到Agent智能体，从具身智能到AI安全治理，本文梳理了最具影响力的十大技术趋势…',
-  },
-  {
-    title: 'AI人工智能入门教程 - 菜鸟教程',
-    url: 'www.runoob.com',
-    date: '2024-11-10',
-    snippet: '人工智能入门教程，涵盖机器学习基础、Python编程、TensorFlow框架使用等内容。适合零基础学习者，配有丰富的代码示例和实践项目，从理论到实战全面掌握AI开发技能…',
-  },
-  {
-    title: '人工智能最新研究成果 - 中国科学院',
-    url: 'www.cas.cn',
-    date: '2025-01-22',
-    snippet: '中国科学院自动化研究所发布最新AI研究成果，在视觉感知、语音识别、知识推理等方向取得重大突破。相关论文已在Nature和Science等顶级期刊发表…',
-  },
-  {
-    title: '全球AI公司排名2025 - Forbes',
-    url: 'www.forbes.com',
-    date: '2025-03-01',
-    snippet: 'Forbes发布2025年度全球最具影响力的AI公司榜单，OpenAI、Google DeepMind、Anthropic等公司名列前茅。中国企业在大模型领域表现亮眼…',
-  },
-  {
-    title: '人工智能伦理与安全：我们需要关注什么？ - 新华网',
-    url: 'www.xinhuanet.com',
-    date: '2025-02-28',
-    snippet: '随着AI技术的飞速发展，人工智能伦理和安全问题日益受到关注。从算法偏见到数据隐私，从自主武器到深度伪造，本文深入探讨了AI发展中的关键伦理挑战及应对策略…',
-  },
+const SEARCH_RESULTS_PAGES = [
+  [
+    {
+      title: '人工智能 - 百度百科',
+      url: 'baike.baidu.com',
+      date: '2024-12-20',
+      snippet: '人工智能（Artificial Intelligence），英文缩写为AI。它是研究、开发用于模拟、延伸和扩展人的智能的理论、方法、技术及应用系统的一门新的技术科学。',
+    },
+    {
+      title: '什么是人工智能？AI技术的现状与未来发展趋势 - 知乎专栏',
+      url: 'zhuanlan.zhihu.com',
+      date: '2025-01-05',
+      snippet: '本文介绍了人工智能的定义、发展历程以及当前主流技术方向，包括机器学习、深度学习、自然语言处理等核心领域。',
+    },
+    {
+      title: '2025年人工智能十大趋势预测 - 36氪',
+      url: '36kr.com',
+      date: '2025-02-18',
+      snippet: '大模型技术持续突破，人工智能领域将迎来新的变革，行业趋势愈发清晰。',
+    },
+    {
+      title: 'AI人工智能入门教程 - 菜鸟教程',
+      url: 'www.runoob.com',
+      date: '2024-11-10',
+      snippet: '这份教程涵盖机器学习基础、Python编程、TensorFlow框架使用等内容，适合零基础读者。',
+    },
+    {
+      title: '人工智能最新研究成果 - 中国科学院',
+      url: 'www.cas.cn',
+      date: '2025-01-22',
+      snippet: '中国科学院自动化研究所发布的最新成果展示了AI在视觉感知、语音识别和知识推理方面的突破。',
+    },
+  ],
+  [
+    {
+      title: '智能语音助手：生态与发展 - CSDN',
+      url: 'blog.csdn.net',
+      date: '2025-04-01',
+      snippet: '智能语音助手成为最典型的消费级AI应用之一，语音识别与自然语言理解持续融合。',
+    },
+    {
+      title: 'AI在金融风控中的应用 - 新浪科技',
+      url: 'tech.sina.com.cn',
+      date: '2025-04-12',
+      snippet: 'AI技术正在改变金融风控模式，包括反欺诈、信用评分和实时风险监控。',
+    },
+    {
+      title: '生成式AI与内容创作 - 36氪',
+      url: '36kr.com',
+      date: '2025-03-25',
+      snippet: '生成式AI推动文本、图像与视频内容创作进入自动化和个性化新阶段。',
+    },
+    {
+      title: 'AI+医疗：诊断辅助系统现状',
+      url: 'www.hospital.com',
+      date: '2025-03-30',
+      snippet: 'AI辅助诊断系统帮助医生更快发现异常，提高影像检查准确性。',
+    },
+    {
+      title: '大模型与企业级应用落地',
+      url: 'www.it168.com',
+      date: '2025-04-07',
+      snippet: '大模型正在从研究走向企业级实践，客服、推荐与分析场景率先落地。',
+    },
+  ],
+  [
+    {
+      title: 'AI伦理与监管趋势报告 - 新华网',
+      url: 'www.xinhuanet.com',
+      date: '2025-05-02',
+      snippet: 'AI伦理监管成为全球共识，透明性、公正性与隐私保护成为行业重点。',
+    },
+    {
+      title: '人工智能与自动驾驶的融合',
+      url: 'www.autohome.com.cn',
+      date: '2025-05-10',
+      snippet: '自动驾驶系统依赖AI感知与决策模块，推动智能出行进入新阶段。',
+    },
+    {
+      title: 'AI在教育场景中的落地实践',
+      url: 'www.eol.cn',
+      date: '2025-05-12',
+      snippet: 'AI教育产品在个性化学习与课堂互动中逐步成为教育科技入口。',
+    },
+    {
+      title: '语义搜索如何改变搜索引擎',
+      url: 'www.so.com',
+      date: '2025-05-18',
+      snippet: '语义搜索使搜索引擎更好理解用户意图，从而提供更精准结果。',
+    },
+    {
+      title: 'AI视觉识别在安防中的应用',
+      url: 'www.sohu.com',
+      date: '2025-05-20',
+      snippet: '视觉识别技术自动检测异常并为智慧安防提供实时预警。',
+    },
+  ],
 ];
 
 const NAV_ITEMS = ['新闻', 'hao123', '地图', '贴吧', '视频', '图片', '网盘', '更多'];
@@ -73,14 +127,17 @@ export default function BaiduPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [resultCount, setResultCount] = useState(0);
 
+  const currentResults = SEARCH_RESULTS_PAGES[currentPage - 1];
+  const totalResultCount = SEARCH_RESULTS_PAGES.reduce((total, page) => total + page.length, 0);
+
   const doSearch = useCallback((kw: string) => {
     if (!kw.trim()) return;
     setResultKeyword(kw.trim());
-    setResultCount(Math.floor(Math.random() * 9000000) + 1000000);
+    setResultCount(totalResultCount);
     setCurrentPage(1);
     setView('result');
     window.scrollTo(0, 0);
-  }, []);
+  }, [totalResultCount]);
 
   const handleHomeSearch = () => doSearch(keyword);
   const handleResultSearch = () => doSearch(resultKeyword);
@@ -208,7 +265,7 @@ export default function BaiduPage() {
             <p className="text-xs text-muted-foreground mb-5">百度为您找到相关结果约 {resultCount.toLocaleString()} 条</p>
 
             <div className="space-y-6">
-              {SEARCH_RESULTS.map((result, i) => (
+              {currentResults.map((result, i) => (
                 <div key={i}>
                   <a href="#" className="text-lg font-medium text-primary hover:underline leading-snug" onClick={(e) => e.preventDefault()}>
                     {result.title}
@@ -232,7 +289,7 @@ export default function BaiduPage() {
               >
                 上一页
               </button>
-              {Array.from({ length: 10 }, (_, i) => i + 1).map((page) => (
+              {Array.from({ length: 3 }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
@@ -246,8 +303,8 @@ export default function BaiduPage() {
                 </button>
               ))}
               <button
-                onClick={() => setCurrentPage((p) => Math.min(10, p + 1))}
-                disabled={currentPage === 10}
+                onClick={() => setCurrentPage((p) => Math.min(3, p + 1))}
+                disabled={currentPage === 3}
                 className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 下一页
