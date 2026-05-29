@@ -52,7 +52,7 @@
 
 | 序号 | 原始网址 | 复刻需求描述 | 复刻产物前端代码 | 复刻产物的访问地址 | 一致性评估结论 |
 | ---- | -------- | -------- | ---------------- | -------- |  ------------- |
-| 1 |  |  |  |  |  |
-| 2    |          |          |                  |          |               |
-| 3    |          |          |                  |          |                |
+| 1 | https://www.baidu.com | 复刻搜索输入框、搜索按钮点击交互、搜索结果文案展示、结果列表翻页功能 | `src/app/baidu/page.tsx` | [NLYua/webpage-replication](https://github.com/NLYua/webpage-replication) | 视觉、功能和交互一致性良好，已支持关键词搜索、结果展示和分页切换。 |
+| 2 | https://pay.weixin.qq.com/index.php/core/home/login | 复刻用户名、密码、验证码输入区域，以及登录按钮的点击交互 | `src/app/wechat-pay-login/page.tsx` | [NLYua/webpage-replication](https://github.com/NLYua/webpage-replication) | 登录交互完整，已实现验证码校验、密码显隐、记住我和提示反馈。 |
+| 3 | https://www.zhihu.com/signin | 复刻知乎登录页的手机号/密码登录切换、验证码发送、密码显隐和登录操作 | `src/app/zhihu-login/page.tsx` | [NLYua/webpage-replication](https://github.com/NLYua/webpage-replication) | 已实现登录方式切换、验证码倒计时、密码显隐和登录流程，交互一致性良好。 |
 
